@@ -47,8 +47,8 @@ jobs:
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.TOKEN }}
           key: ${{ secrets.SSH_KEY }}
-          ssh-private-key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
           script_stop: true
           script: |
@@ -59,7 +59,7 @@ jobs:
 
 
 
- 
+
 
 
 # git  pull
