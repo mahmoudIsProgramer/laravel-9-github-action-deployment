@@ -43,7 +43,7 @@ jobs:
       #   run: php artisan test
       - name: Deploy to Server
         if: ${{ success() }}
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@main
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
