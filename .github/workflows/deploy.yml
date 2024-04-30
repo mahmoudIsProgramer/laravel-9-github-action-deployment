@@ -41,6 +41,16 @@ jobs:
       #     DB_PASSWORD: super_secret
       #     DB_DATABASE: laravel_test_db
       #   run: php artisan test
+      # - name: Install SSH key and start SSH agent
+      #   env:
+      #     SSH_PASSPHRASE: ${{ secrets.SSH_PASSPHRASE }}
+      #   run: |
+      #     mkdir -p ~/.ssh/
+      #     echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+      #     chmod 600 ~/.ssh/id_rsa
+      #     eval "$(ssh-agent -s)"
+      #     echo "$SSH_PASSPHRASE" | ssh-add ~/.ssh/id_rsa
+      #     ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
       - name: Install SSH key and start SSH agent
         env:
           SSH_PASSPHRASE: ${{ secrets.SSH_PASSPHRASE }}
@@ -49,7 +59,7 @@ jobs:
           echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           eval "$(ssh-agent -s)"
-          echo "$SSH_PASSPHRASE" | ssh-add ~/.ssh/id_rsa
+          { echo "spawn ssh-add ~/.ssh/id_rsa"; echo "expect \"Enter passphrase for ~/.ssh/id_rsa:\""; echo "send \"$SSH_PASSPHRASE\r\""; echo "expect eof"; } | expect
           ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
       - name: Deploy to Server
         if: ${{ success() }}
@@ -75,7 +85,7 @@ jobs:
 
 
 
-  
+
 
 
 
