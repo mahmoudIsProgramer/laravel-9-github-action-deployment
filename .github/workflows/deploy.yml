@@ -52,15 +52,12 @@ jobs:
           passphrase: ${{ secrets.PASSPHRASE }}
           script_stop: true
           script: |
-            cd public_html
-            cd agency.diligentsource.site
-            git  pull
+            echo "SSH Connection Successful!"
 
-
-
-
-
-
+            
+# cd public_html
+# cd agency.diligentsource.site
+# git  pull
 
 # git  pull
 # npm ci
