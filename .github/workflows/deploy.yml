@@ -55,11 +55,13 @@ jobs:
             echo "SSH Connection Successful!"
             cd public_html
             cd agency.diligentsource.site
-            git  pull
 
 
 
-  
+
+
+
+
 
 
 # git  pull
