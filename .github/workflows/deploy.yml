@@ -53,11 +53,14 @@ jobs:
           script_stop: true
           script: |
             echo "SSH Connection Successful!"
+            cd public_html
+            cd agency.diligentsource.site
+            git  pull
 
             
-# cd public_html
-# cd agency.diligentsource.site
-# git  pull
+
+
+
 
 # git  pull
 # npm ci
