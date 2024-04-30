@@ -41,6 +41,14 @@ jobs:
       #     DB_PASSWORD: super_secret
       #     DB_DATABASE: laravel_test_db
       #   run: php artisan test
+      - name: Install SSH key and start SSH agent
+        run: |
+          mkdir -p ~/.ssh/
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          eval "$(ssh-agent -s)"
+          ssh-add ~/.ssh/id_rsa
+          ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
       - name: Deploy to Server
         if: ${{ success() }}
         uses: appleboy/ssh-action@master
@@ -63,7 +71,7 @@ jobs:
 
 
 
-            
+
 
 
 
