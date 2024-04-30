@@ -58,11 +58,16 @@ jobs:
           SSH_PASSPHRASE: ${{ secrets.SSH_PASSPHRASE }}
         run: |
           mkdir -p ~/.ssh/
-          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.SSH_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa  # Remove any Windows-style carriage returns
           chmod 600 ~/.ssh/id_rsa
-          eval "$(ssh-agent -s)"
-          { echo "spawn ssh-add ~/.ssh/id_rsa"; echo "expect \"Enter passphrase for ~/.ssh/id_rsa:\""; echo "send \"$SSH_PASSPHRASE\r\""; echo "expect eof"; } | expect
           ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+          eval "$(ssh-agent -s)"
+          expect -c "
+            spawn ssh-add ~/.ssh/id_rsa
+            expect \"Enter passphrase for /home/runner/.ssh/id_rsa:\"
+            send \"$SSH_PASSPHRASE\r\"
+            expect eof
+          "
       - name: Deploy to Server
         if: ${{ success() }}
         uses: appleboy/ssh-action@master
