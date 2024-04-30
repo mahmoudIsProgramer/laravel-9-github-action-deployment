@@ -53,8 +53,13 @@ jobs:
           script_stop: true
           script: |
             echo "SSH Connection Successful!"
+            echo "Current Directory on Server: $(pwd)"
             cd public_html
             cd agency.diligentsource.site
+            echo "Current Directory on Server: $(pwd)"
+            echo "try to pull"
+            git pull
+            echo "pull done"
 
 
 
