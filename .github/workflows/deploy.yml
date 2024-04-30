@@ -54,14 +54,14 @@ jobs:
           script: |
             cd public_html
             cd agency.diligentsource.site
-            git  pull origin main
+            git  pull
 
 
 
 
 
 
- 
+
 # git  pull
 # npm ci
 # composer i
