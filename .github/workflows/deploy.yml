@@ -53,12 +53,12 @@ jobs:
       #     ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
       # - name: Install dependencies
       #   run: sudo apt-get update && sudo apt-get install -y expect
+      # ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
       - name: Setup SSH key
         run: |
           mkdir -p ~/.sshnew
           echo "${{ secrets.SSH_KEY }}" > ~/.sshnew/id_rsa
           chmod 600 ~/.sshnew/id_rsa
-          ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
 
       - name: Install ssh-agent
         run: |
