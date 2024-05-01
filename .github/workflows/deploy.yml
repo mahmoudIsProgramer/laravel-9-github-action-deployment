@@ -79,6 +79,10 @@ jobs:
           script: |
             echo "SSH Connection Successful!"
             echo "Current Directory on Server: $(pwd)"
+            cd public_html
+            cd agency.diligentsource.site
+            git remote -v
+            echo "remote repo: $(git remote -v)"
             git pull
 
 
