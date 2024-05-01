@@ -22,19 +22,19 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
 
-          - name: Install SSH agent and add key
-          run: |
-            sudo apt-get update && sudo apt-get install -y expect
-            eval "$(ssh-agent -s)"
-            echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
-            chmod 600 ~/.ssh/id_rsa
-            expect -c "
-              spawn ssh-add ~/.ssh/id_rsa
-              expect \"Enter passphrase for /home/runner/.ssh/id_rsa:\"
-              send \"${{ secrets.PASSPHRASE }}\r\"
-              expect eof
-            "
-            ssh-add -l  # Lists the SSH keys to confirm addition
+      - name: Install SSH agent and add key
+        run: |
+          sudo apt-get update && sudo apt-get install -y expect
+          eval "$(ssh-agent -s)"
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          expect -c "
+            spawn ssh-add ~/.ssh/id_rsa
+            expect \"Enter passphrase for /home/runner/.ssh/id_rsa:\"
+            send \"${{ secrets.PASSPHRASE }}\r\"
+            expect eof
+          "
+          ssh-add -l  # Lists the SSH keys to confirm addition
 
 
       - name: Test SSH connection
