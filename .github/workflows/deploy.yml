@@ -22,10 +22,15 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
 
-      - name: Install ssh-agent
+      - name: Setup SSH key with expect
         run: |
-          eval "$(ssh-agent -s)"
-          echo "${{ secrets.PASSPHRASE }}" | ssh-add ~/.ssh/id_rsa
+          sudo apt-get install -y expect
+          expect -c "
+          spawn ssh-add ~/.ssh/id_rsa
+          expect \"Enter passphrase\"
+          send \"${{ secrets.PASSPHRASE }}\r\"
+          expect eof
+          "
 
 
       - name: Test SSH connection
