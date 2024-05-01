@@ -63,7 +63,7 @@ jobs:
       - name: Install ssh-agent
         run: |
           eval "$(ssh-agent -s)"
-          echo "${{ secrets.PASSPHRASE }}" | ssh-add ~/.ssh/id_rsa
+          echo "${{ secrets.PASSPHRASE }}" | ssh-add ~/.sshnew/id_rsa
 
 
       - name: Deploy to Server
