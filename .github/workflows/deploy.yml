@@ -55,7 +55,7 @@ jobs:
       #   run: sudo apt-get update && sudo apt-get install -y expect
       - name: Setup SSH key
         run: |
-          mkdir -p ~/.ssh
+          mkdir -p ~/.sshnew
           echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
