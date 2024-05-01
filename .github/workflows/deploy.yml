@@ -54,16 +54,16 @@ jobs:
       # - name: Install dependencies
       #   run: sudo apt-get update && sudo apt-get install -y expect
       # ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
-      - name: Setup SSH key
-        run: |
-          mkdir -p ~/.sshnew
-          echo "${{ secrets.SSH_KEY }}" > ~/.sshnew/id_rsa
-          chmod 600 ~/.sshnew/id_rsa
+      # - name: Setup SSH key
+      #   run: |
+      #     mkdir -p ~/.sshnew
+      #     echo "${{ secrets.SSH_KEY }}" > ~/.sshnew/id_rsa
+      #     chmod 600 ~/.sshnew/id_rsa
 
-      - name: Install ssh-agent
-        run: |
-          eval "$(ssh-agent -s)"
-          echo "${{ secrets.PASSPHRASE }}" | ssh-add ~/.sshnew/id_rsa
+      # - name: Install ssh-agent
+      #   run: |
+      #     eval "$(ssh-agent -s)"
+      #     echo "${{ secrets.PASSPHRASE }}" | ssh-add ~/.sshnew/id_rsa
 
 
       - name: Deploy to Server
@@ -72,13 +72,14 @@ jobs:
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
-          password: ${{ secrets.TOKEN }}
           key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
           passphrase: ${{ secrets.PASSPHRASE }}
           script_stop: true
           script: |
             echo "SSH Connection Successful!"
             echo "Current Directory on Server: $(pwd)"
+            git pull
 
 
 
