@@ -79,10 +79,10 @@ jobs:
           script: |
             echo "SSH Connection Successful!"
             echo "Current Directory on Server: $(pwd)"
-            ssh -T git@github.com
 
 
 
+# ssh -T git@github.com
  # cd public_html
             # cd agency.diligentsource.site
             # echo "Current Directory on Server: $(pwd)"
