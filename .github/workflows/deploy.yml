@@ -31,8 +31,8 @@ jobs:
       #     php artisan cache:clear
       #     php artisan key:generate
       #     npm run build
-      - name: Directory Permissions
-        run: chmod 755 -R storage bootstrap/cache
+      # - name: Directory Permissions
+      #   run: chmod 755 -R storage bootstrap/cache
       # - name: Run Unit tests
       #   env:
       #     APP_ENV: testing
@@ -51,23 +51,21 @@ jobs:
       #     eval "$(ssh-agent -s)"
       #     echo "$SSH_PASSPHRASE" | ssh-add ~/.ssh/id_rsa
       #     ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
-      - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y expect
-      - name: Install SSH key and start SSH agent
-        env:
-          SSH_PASSPHRASE: ${{ secrets.SSH_PASSPHRASE }}
+      # - name: Install dependencies
+      #   run: sudo apt-get update && sudo apt-get install -y expect
+      - name: Setup SSH key
         run: |
-          mkdir -p ~/.ssh/
-          echo "${{ secrets.SSH_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa  # Remove any Windows-style carriage returns
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+
+      - name: Install ssh-agent
+        run: |
           eval "$(ssh-agent -s)"
-          expect -c "
-            spawn ssh-add ~/.ssh/id_rsa
-            expect \"Enter passphrase for /home/runner/.ssh/id_rsa:\"
-            send \"$SSH_PASSPHRASE\r\"
-            expect eof
-          "
+          echo "${{ secrets.PASSPHRASE }}" | ssh-add ~/.ssh/id_rsa
+
+
       - name: Deploy to Server
         if: ${{ success() }}
         uses: appleboy/ssh-action@master
