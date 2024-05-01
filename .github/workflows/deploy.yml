@@ -1,10 +1,10 @@
-name: HostingerDeploy
+name: Deploy
 
 on:
   push:
     branches: [main]
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: shivammathur/setup-php@v2
@@ -14,6 +14,11 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
+      # - uses: mirromutth/mysql-action@v1.1
+      #   with:
+      #     mysql database: laravel-test-db
+      #     mysql user: laravel_test_user
+      #     mysql password: example
       # - name: Copy .env
       #   run: cp .env.example .env
       # - name: Install composer Dependencies
@@ -22,31 +27,82 @@ jobs:
       #   run: npm ci
       # - name: Setup Project
       #   run: |
+      #     php artisan config:clear
+      #     php artisan cache:clear
+      #     php artisan key:generate
       #     npm run build
-      - name: Deploy PHP to Server
+      - name: Directory Permissions
+        run: chmod 755 -R storage bootstrap/cache
+      # - name: Run Unit tests
+      #   env:
+      #     APP_ENV: testing
+      #     DB_CONNECTION: mysql
+      #     DB_USERNAME: laravel_test_user
+      #     DB_PASSWORD: super_secret
+      #     DB_DATABASE: laravel_test_db
+      #   run: php artisan test
+      # - name: Install SSH key and start SSH agent
+      #   env:
+      #     SSH_PASSPHRASE: ${{ secrets.SSH_PASSPHRASE }}
+      #   run: |
+      #     mkdir -p ~/.ssh/
+      #     echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+      #     chmod 600 ~/.ssh/id_rsa
+      #     eval "$(ssh-agent -s)"
+      #     echo "$SSH_PASSPHRASE" | ssh-add ~/.ssh/id_rsa
+      #     ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y expect
+      - name: Install SSH key and start SSH agent
+        env:
+          SSH_PASSPHRASE: ${{ secrets.SSH_PASSPHRASE }}
+        run: |
+          mkdir -p ~/.ssh/
+          echo "${{ secrets.SSH_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa  # Remove any Windows-style carriage returns
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+          eval "$(ssh-agent -s)"
+          expect -c "
+            spawn ssh-add ~/.ssh/id_rsa
+            expect \"Enter passphrase for /home/runner/.ssh/id_rsa:\"
+            send \"$SSH_PASSPHRASE\r\"
+            expect eof
+          "
+      - name: Deploy to Server
         if: ${{ success() }}
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
-          port: ${{ secrets.SSH_PORT }}
+          password: ${{ secrets.TOKEN }}
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
           script_stop: true
           script: |
-            cd public_html
-            cd agency.diligentsource.site
-            git pull
-            php composer.phar install
-            php artisan migrate --force
-      - name: Install SSH key
-        run: |
-          mkdir -p ~/.ssh/
-          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -t rsa -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
-      # - name: Copy Build Files to Target Server
-      #   run: |
-      #     rsync -r -e "ssh -p ${{ secrets.SSH_PORT }}" ${{ github.workspace }}/public/build/ ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:~/domains/laravel-space.com/public/build
+            echo "SSH Connection Successful!"
+            echo "Current Directory on Server: $(pwd)"
+            ssh -T git@github.com
 
-      
+
+
+ # cd public_html
+            # cd agency.diligentsource.site
+            # echo "Current Directory on Server: $(pwd)"
+            # echo "try to pull"
+            # git pull
+            # echo "pull done"
+
+
+
+
+
+
+
+
+
+
+# git  pull
+# npm ci
+# composer i
+# npm run prod
+# php artisan migrate --force
