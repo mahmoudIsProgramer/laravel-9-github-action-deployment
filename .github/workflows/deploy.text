@@ -14,103 +14,34 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-      # - uses: mirromutth/mysql-action@v1.1
-      #   with:
-      #     mysql database: laravel-test-db
-      #     mysql user: laravel_test_user
-      #     mysql password: example
-      # - name: Copy .env
-      #   run: cp .env.example .env
-      # - name: Install composer Dependencies
-      #   run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-      # - name: Install node dependencies
-      #   run: npm ci
-      # - name: Setup Project
-      #   run: |
-      #     php artisan config:clear
-      #     php artisan cache:clear
-      #     php artisan key:generate
-      #     npm run build
-      - name: Directory Permissions
-        run: chmod 755 -R storage bootstrap/cache
-      # - name: Run Unit tests
-      #   env:
-      #     APP_ENV: testing
-      #     DB_CONNECTION: mysql
-      #     DB_USERNAME: laravel_test_user
-      #     DB_PASSWORD: super_secret
-      #     DB_DATABASE: laravel_test_db
-      #   run: php artisan test
-      # - name: Install SSH key and start SSH agent
-      #   env:
-      #     SSH_PASSPHRASE: ${{ secrets.SSH_PASSPHRASE }}
-      #   run: |
-      #     mkdir -p ~/.ssh/
-      #     echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
-      #     chmod 600 ~/.ssh/id_rsa
-      #     eval "$(ssh-agent -s)"
-      #     echo "$SSH_PASSPHRASE" | ssh-add ~/.ssh/id_rsa
-      #     ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
-      - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y expect
-      - name: Install SSH key and start SSH agent
-        env:
-          SSH_PASSPHRASE: ${{ secrets.SSH_PASSPHRASE }}
+
+      - name: Setup SSH key
         run: |
-          mkdir -p ~/.ssh/
-          echo "${{ secrets.SSH_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa  # Remove any Windows-style carriage returns
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+
+      - name: Install SSH agent and add key
+        run: |
+          sudo apt-get update && sudo apt-get install -y expect
           eval "$(ssh-agent -s)"
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
           expect -c "
             spawn ssh-add ~/.ssh/id_rsa
             expect \"Enter passphrase for /home/runner/.ssh/id_rsa:\"
-            send \"$SSH_PASSPHRASE\r\"
+            send \"${{ secrets.PASSPHRASE }}\r\"
             expect eof
           "
-      - name: Deploy to Server
-        if: ${{ success() }}
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          password: ${{ secrets.TOKEN }}
-          key: ${{ secrets.SSH_KEY }}
-          passphrase: ${{ secrets.PASSPHRASE }}
-          script_stop: true
-          script: |
-            echo "SSH Connection Successful!"
-            echo "Current Directory on Server: $(pwd)"
-            cd public_html
-            cd agency.diligentsource.site
-            echo "Current Directory on Server: $(pwd)"
-            echo "try to pull"
-            git pull
-            echo "pull done"
+          ssh-add -l  # Lists the SSH keys to confirm addition
 
 
+      - name: Test SSH connection
+        run: ssh -Tvvv git@github.com
 
 
-
-
- # - name: Deploy to Server
-      #   if: ${{ success() }}
-      #   uses: appleboy/ssh-action@master
-      #   with:
-      #     host: ${{ secrets.SSH_HOST }}
-      #     username: ${{ secrets.SSH_USERNAME }}
-      #     key: ${{ secrets.SSH_KEY }}
-      #     port: ${{ secrets.SSH_PORT }}
-      #     passphrase: ${{ secrets.PASSPHRASE }}
-      #     script_stop: true
-      #     script: |
-      #       echo "SSH Connection Successful!"
-      #       echo "Current Directory on Server: $(pwd)"
-      #       cd public_html
-      #       cd agency.diligentsource.site
-      #       git remote -v
-      #       echo "remote repo: $(git remote -v)"
-      #       git pull
+        
 
 
 
@@ -118,8 +49,3 @@ jobs:
 
 
 
-# git  pull
-# npm ci
-# composer i
-# npm run prod
-# php artisan migrate --force
